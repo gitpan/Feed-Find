@@ -1,7 +1,6 @@
-# $Id: Find.pm 1875 2005-09-09 05:41:38Z btrott $
-
 package Feed::Find;
 use strict;
+use 5.008_001;
 
 use base qw( Class::ErrorHandler );
 use LWP::UserAgent;
@@ -9,7 +8,7 @@ use HTML::Parser;
 use URI;
 
 use vars qw( $VERSION );
-$VERSION = '0.06';
+$VERSION = '0.07';
 
 use constant FEED_MIME_TYPES => [
     'application/x.atom+xml',
@@ -27,6 +26,7 @@ sub find {
     my $class = shift;
     my($uri) = @_;
     my $ua = LWP::UserAgent->new;
+    $ua->env_proxy;
     $ua->agent(join '/', $class, $class->VERSION);
     $ua->parse_head(0);   ## We're already basically doing this ourselves.
     my $req = HTTP::Request->new(GET => $uri);
@@ -150,10 +150,11 @@ no results.
 
 =back
 
-=head2 Feed::Find->find_in_html($html [, $base_uri ])
+=head2 Feed::Find->find_in_html(\$html [, $base_uri ])
 
-Given a string I<$html> containing an HTML page, uses the same techniques
-as described above in I<find> to find the feeds associated with that page.
+Given a reference to a string I<$html> containing an HTML page, uses the
+same techniques as described above in I<find> to find the feeds associated
+with that page.
 
 If you know the URI of the page, you should provide it in I<$base_uri>, so
 that relative links can be properly made absolute. I<Feed::Find> will attempt
